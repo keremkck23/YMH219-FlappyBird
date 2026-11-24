@@ -20,8 +20,29 @@ public partial class MainForm : Form
         _renderer = new GameRenderer();
 
         InitializeComponent();
+        LoadApplicationIcon();
         UpdateTopBar();
         _gameTimer.Start();
+    }
+
+    private void LoadApplicationIcon()
+    {
+        try
+        {
+            string iconPath = Path.Combine(AppContext.BaseDirectory, "Assets", "app.ico");
+            if (File.Exists(iconPath))
+            {
+                Icon = new Icon(iconPath);
+            }
+            else if (!string.IsNullOrEmpty(Application.ExecutablePath))
+            {
+                Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+            }
+        }
+        catch
+        {
+            // Ikon yuklenemezse varsayilan form ikonu kullanilir.
+        }
     }
 
     protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
