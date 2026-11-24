@@ -16,7 +16,57 @@ public class GameRenderer
 
         DrawSky(g);
         DrawClouds(g, engine.Clouds);
+        DrawPipes(g, engine.Pipes);
         DrawGround(g, engine.Ground);
+    }
+
+    private static void DrawPipes(Graphics g, IReadOnlyList<PipeObstacle> pipes)
+    {
+        foreach (PipeObstacle pipe in pipes)
+        {
+            DrawPipeSection(g, pipe.TopBounds, isTopPipe: true);
+            DrawPipeSection(g, pipe.BottomBounds, isTopPipe: false);
+        }
+    }
+
+    private static void DrawPipeSection(Graphics g, RectangleF rect, bool isTopPipe)
+    {
+        if (rect.Height <= 0)
+        {
+            return;
+        }
+
+        using var bodyBrush = new LinearGradientBrush(
+            rect,
+            Color.FromArgb(148, 224, 68),
+            Color.FromArgb(62, 142, 32),
+            LinearGradientMode.Horizontal);
+
+        var blend = new ColorBlend
+        {
+            Colors =
+            [
+                Color.FromArgb(95, 178, 44),
+                Color.FromArgb(164, 236, 86),
+                Color.FromArgb(88, 170, 38),
+                Color.FromArgb(52, 122, 26)
+            ],
+            Positions = [0.0f, 0.24f, 0.68f, 1.0f]
+        };
+        bodyBrush.InterpolationColors = blend;
+
+        using var outlinePen = new Pen(Color.FromArgb(44, 78, 22), 2.2f);
+        g.FillRectangle(bodyBrush, rect);
+        g.DrawRectangle(outlinePen, rect.X, rect.Y, rect.Width, rect.Height);
+
+        // Boru kapagi (flans)
+        const float capHeight = 24f;
+        const float capOverhang = 5f;
+        float capY = isTopPipe ? rect.Bottom - capHeight : rect.Top;
+        var capRect = new RectangleF(rect.X - capOverhang, capY, rect.Width + capOverhang * 2, capHeight);
+
+        g.FillRectangle(bodyBrush, capRect);
+        g.DrawRectangle(outlinePen, capRect.X, capRect.Y, capRect.Width, capRect.Height);
     }
 
     private static void DrawSky(Graphics g)
