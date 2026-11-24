@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/logo.png" alt="YMH219 Flappy Bird Logo" width="128" />
+</p>
+
 # YMH219 - Flappy Bird (C# / .NET Windows Forms)
 
 Windows Forms üzerinde zamanlayıcı (`Timer`), klavye olayları (`KeyDown`, `KeyUp`, `PreviewKeyDown`) ve nesne tabanlı programlama (OOP) ilkeleri kullanılarak geliştirilmiş masaüstü **Flappy Bird** oyunu.
