@@ -39,6 +39,7 @@ Bu proje, YMH219 dersi kapsamında aşağıdaki kavramların uygulamalı olarak 
 | `P` veya **Duraklat** butonu | Oyunu duraklat / devam ettir |
 | `R` / `Enter` veya **Yeni Oyun** butonu | Yeni oyun / Yeniden başlat |
 | `M` veya **Ses** butonu | Ses efektlerini aç / kapat |
+| `F11` (`Esc` ile çıkış) | Tam ekran modunu aç / kapat |
 
 ## Kurulum ve Çalıştırma Adımları
 
