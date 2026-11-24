@@ -1,3 +1,4 @@
+#nullable enable
 using FlappyBird.Controls;
 using FlappyBird.Core;
 
