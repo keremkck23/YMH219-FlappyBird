@@ -22,8 +22,34 @@ public class Bird
     {
         Width = GameConfig.BirdWidth;
         Height = GameConfig.BirdHeight;
+        Reset();
+    }
+
+    public void Reset()
+    {
         X = GameConfig.BirdStartX;
         Y = GameConfig.BirdStartY;
         Velocity = 0f;
+    }
+
+    public void Jump()
+    {
+        Velocity = GameConfig.JumpVelocity;
+    }
+
+    public void ApplyGravity()
+    {
+        Velocity = Math.Min(Velocity + GameConfig.Gravity, GameConfig.MaxFallSpeed);
+        Y += Velocity;
+    }
+
+    public void ClampToGround()
+    {
+        float maxY = GameConfig.PlayableHeight - Height;
+        if (Y > maxY)
+        {
+            Y = maxY;
+            Velocity = 0f;
+        }
     }
 }
