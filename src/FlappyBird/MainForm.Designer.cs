@@ -33,6 +33,7 @@ partial class MainForm
         _gameCanvas.Size = new Size(GameConfig.CanvasWidth, GameConfig.CanvasHeight);
         _gameCanvas.TabIndex = 0;
         _gameCanvas.Paint += GameCanvas_Paint;
+        _gameCanvas.MouseDown += GameCanvas_MouseDown;
 
         // Oyun dongusu zamanlayicisi
         _gameTimer.Interval = GameConfig.TimerIntervalMs;
@@ -48,6 +49,9 @@ partial class MainForm
         Name = "MainForm";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "YMH219 - Flappy Bird";
+        KeyDown += MainForm_KeyDown;
+        KeyUp += MainForm_KeyUp;
+        PreviewKeyDown += MainForm_PreviewKeyDown;
 
         ResumeLayout(false);
     }
