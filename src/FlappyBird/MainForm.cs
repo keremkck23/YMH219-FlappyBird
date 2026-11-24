@@ -167,18 +167,16 @@ public partial class MainForm : Form
     {
         Directory.CreateDirectory(outputDirectory);
         _gameTimer.Stop();
-        CreateControl();
-        _topBarPanel.CreateControl();
-        foreach (Control child in _topBarPanel.Controls)
-        {
-            child.CreateControl();
-        }
-        PerformLayout();
-        _topBarPanel.PerformLayout();
+        ShowInTaskbar = false;
+        Opacity = 0;
+        Show();
+        Application.DoEvents();
 
         SaveSceneScreenshot(GameStatus.Ready, score: 0, highScore: 12, Path.Combine(outputDirectory, "start-screen.png"));
         SaveSceneScreenshot(GameStatus.Playing, score: 7, highScore: 12, Path.Combine(outputDirectory, "gameplay.png"));
         SaveSceneScreenshot(GameStatus.GameOver, score: 14, highScore: 14, Path.Combine(outputDirectory, "game-over.png"));
+
+        Hide();
     }
 
     private void SaveSceneScreenshot(GameStatus status, int score, int highScore, string filePath)
