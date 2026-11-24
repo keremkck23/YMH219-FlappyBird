@@ -100,7 +100,7 @@ public class GameRenderer
                         $"En Yuksek Skor: {engine.HighScore}",
                         $"Basari: {badge}"
                     ],
-                    footer: "Yeniden baslamak icin R / ENTER veya Yeni Oyun butonuna basin");
+                    footer: "Yeniden baslamak icin R / ENTER tusuna basin");
                 break;
         }
     }
