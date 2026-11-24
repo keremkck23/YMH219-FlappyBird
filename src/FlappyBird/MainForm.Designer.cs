@@ -45,9 +45,9 @@ partial class MainForm
 
         // Ust kontrol cubugu
         _topBarPanel.BackColor = Color.FromArgb(24, 34, 48);
-        _topBarPanel.Location = new Point(0, 0);
-        _topBarPanel.Name = "_topBarPanel";
         _topBarPanel.Size = new Size(GameConfig.CanvasWidth, GameConfig.TopBarHeight);
+        _topBarPanel.Dock = DockStyle.Top;
+        _topBarPanel.Name = "_topBarPanel";
         _topBarPanel.TabIndex = 0;
 
         _lblScore.AutoSize = true;
@@ -71,6 +71,7 @@ partial class MainForm
         _lblSpeed.Name = "_lblSpeed";
         _lblSpeed.Text = "Hiz: 3.2";
 
+        _btnNewGame.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         _btnNewGame.BackColor = Color.FromArgb(46, 160, 67);
         _btnNewGame.FlatAppearance.BorderSize = 0;
         _btnNewGame.FlatStyle = FlatStyle.Flat;
@@ -84,6 +85,7 @@ partial class MainForm
         _btnNewGame.UseVisualStyleBackColor = false;
         _btnNewGame.Click += BtnNewGame_Click;
 
+        _btnPause.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         _btnPause.BackColor = Color.FromArgb(56, 118, 186);
         _btnPause.FlatAppearance.BorderSize = 0;
         _btnPause.FlatStyle = FlatStyle.Flat;
@@ -97,6 +99,7 @@ partial class MainForm
         _btnPause.UseVisualStyleBackColor = false;
         _btnPause.Click += BtnPause_Click;
 
+        _btnMute.Anchor = AnchorStyles.Top | AnchorStyles.Right;
         _btnMute.BackColor = Color.FromArgb(72, 84, 102);
         _btnMute.FlatAppearance.BorderSize = 0;
         _btnMute.FlatStyle = FlatStyle.Flat;
@@ -118,12 +121,12 @@ partial class MainForm
         _topBarPanel.Controls.Add(_btnMute);
 
         // Oyun tuvali
-        _gameCanvas.Location = new Point(0, GameConfig.TopBarHeight);
+        _gameCanvas.Dock = DockStyle.Fill;
         _gameCanvas.Name = "_gameCanvas";
-        _gameCanvas.Size = new Size(GameConfig.CanvasWidth, GameConfig.CanvasHeight);
         _gameCanvas.TabIndex = 1;
         _gameCanvas.Paint += GameCanvas_Paint;
         _gameCanvas.MouseDown += GameCanvas_MouseDown;
+        _gameCanvas.Resize += (_, _) => _gameCanvas.Invalidate();
 
         // Oyun dongusu zamanlayicisi
         _gameTimer.Interval = GameConfig.TimerIntervalMs;
@@ -132,11 +135,12 @@ partial class MainForm
         // Ana form
         AutoScaleMode = AutoScaleMode.Font;
         ClientSize = new Size(GameConfig.CanvasWidth, GameConfig.TopBarHeight + GameConfig.CanvasHeight);
-        Controls.Add(_topBarPanel);
         Controls.Add(_gameCanvas);
-        FormBorderStyle = FormBorderStyle.FixedSingle;
+        Controls.Add(_topBarPanel);
+        FormBorderStyle = FormBorderStyle.Sizable;
         KeyPreview = true;
-        MaximizeBox = false;
+        MaximizeBox = true;
+        MinimumSize = new Size(GameConfig.CanvasWidth + 16, GameConfig.TopBarHeight + GameConfig.CanvasHeight + 39);
         Name = "MainForm";
         StartPosition = FormStartPosition.CenterScreen;
         Text = "YMH219 - Flappy Bird";

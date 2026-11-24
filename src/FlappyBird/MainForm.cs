@@ -11,6 +11,9 @@ public partial class MainForm : Form
     private readonly GameEngine _engine;
     private readonly GameRenderer _renderer;
     private bool _isJumpKeyHeld;
+    private bool _isFullScreen;
+    private FormWindowState _previousWindowState = FormWindowState.Normal;
+    private Rectangle _previousBounds;
 
     public MainForm()
     {
@@ -93,7 +96,44 @@ public partial class MainForm : Form
                 _engine.ToggleMute();
                 e.Handled = true;
                 break;
+
+            case Keys.F11:
+                ToggleFullScreen();
+                e.Handled = true;
+                break;
+
+            case Keys.Escape:
+                if (_isFullScreen)
+                {
+                    ToggleFullScreen();
+                    e.Handled = true;
+                }
+                break;
         }
+    }
+
+    private void ToggleFullScreen()
+    {
+        if (!_isFullScreen)
+        {
+            _previousWindowState = WindowState;
+            _previousBounds = Bounds;
+            FormBorderStyle = FormBorderStyle.None;
+            WindowState = FormWindowState.Maximized;
+            _isFullScreen = true;
+        }
+        else
+        {
+            FormBorderStyle = FormBorderStyle.Sizable;
+            WindowState = _previousWindowState;
+            if (_previousWindowState == FormWindowState.Normal && !_previousBounds.IsEmpty)
+            {
+                Bounds = _previousBounds;
+            }
+            _isFullScreen = false;
+        }
+
+        _gameCanvas.Invalidate();
     }
 
     private void MainForm_KeyUp(object? sender, KeyEventArgs e)
@@ -146,7 +186,7 @@ public partial class MainForm : Form
 
     private void GameCanvas_Paint(object? sender, PaintEventArgs e)
     {
-        _renderer.Render(e.Graphics, _engine);
+        _renderer.Render(e.Graphics, _engine, _gameCanvas.ClientSize);
     }
 
     private void BtnNewGame_Click(object? sender, EventArgs e)

@@ -11,8 +11,34 @@ public class GameRenderer
 {
     public void Render(Graphics g, GameEngine engine)
     {
+        Render(g, engine, new Size(GameConfig.CanvasWidth, GameConfig.CanvasHeight));
+    }
+
+    public void Render(Graphics g, GameEngine engine, Size viewportSize)
+    {
         g.SmoothingMode = SmoothingMode.AntiAlias;
         g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+        using var letterboxBrush = new SolidBrush(Color.FromArgb(18, 26, 38));
+        g.FillRectangle(letterboxBrush, 0, 0, viewportSize.Width, viewportSize.Height);
+
+        float scaleX = viewportSize.Width / (float)GameConfig.CanvasWidth;
+        float scaleY = viewportSize.Height / (float)GameConfig.CanvasHeight;
+        float scale = Math.Min(scaleX, scaleY);
+        if (scale <= 0f)
+        {
+            return;
+        }
+
+        float drawWidth = GameConfig.CanvasWidth * scale;
+        float drawHeight = GameConfig.CanvasHeight * scale;
+        float offsetX = (viewportSize.Width - drawWidth) / 2f;
+        float offsetY = (viewportSize.Height - drawHeight) / 2f;
+
+        GraphicsState state = g.Save();
+        g.TranslateTransform(offsetX, offsetY);
+        g.ScaleTransform(scale, scale);
+        g.SetClip(new RectangleF(0, 0, GameConfig.CanvasWidth, GameConfig.CanvasHeight));
 
         DrawSky(g);
         DrawClouds(g, engine.Clouds);
@@ -22,6 +48,8 @@ public class GameRenderer
         DrawFloatingTexts(g, engine.FloatingTexts);
         DrawLiveScore(g, engine);
         DrawStatusOverlay(g, engine);
+
+        g.Restore(state);
     }
 
     private static void DrawFloatingTexts(Graphics g, IReadOnlyList<FloatingText> texts)
