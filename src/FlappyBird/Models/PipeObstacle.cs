@@ -32,4 +32,33 @@ public class PipeObstacle
         GapHeight = gapHeight;
         IsPassed = false;
     }
+
+    public bool IsOffScreen => X + Width < -10;
+
+    public void Move(float speed)
+    {
+        X -= speed;
+    }
+
+    public void Reposition(float newX, int newGapY, int newGapHeight)
+    {
+        X = newX;
+        GapY = newGapY;
+        GapHeight = newGapHeight;
+        IsPassed = false;
+    }
+
+    /// <summary>
+    /// Kusun borunun orta noktasini ilk kez gecip gecmedigini kontrol eder.
+    /// </summary>
+    public bool TryMarkPassed(float birdX)
+    {
+        if (!IsPassed && X + Width < birdX)
+        {
+            IsPassed = true;
+            return true;
+        }
+
+        return false;
+    }
 }
