@@ -18,6 +18,63 @@ public class GameRenderer
         DrawClouds(g, engine.Clouds);
         DrawPipes(g, engine.Pipes);
         DrawGround(g, engine.Ground);
+        DrawBird(g, engine.Bird);
+    }
+
+    private static void DrawBird(Graphics g, Bird bird)
+    {
+        GraphicsState state = g.Save();
+
+        float centerX = bird.X + bird.Width / 2f;
+        float centerY = bird.Y + bird.Height / 2f;
+
+        g.TranslateTransform(centerX, centerY);
+        g.RotateTransform(bird.RotationAngle);
+
+        float halfW = bird.Width / 2f;
+        float halfH = bird.Height / 2f;
+
+        // Kus govdesi
+        var bodyRect = new RectangleF(-halfW, -halfH, bird.Width, bird.Height);
+        using var bodyBrush = new LinearGradientBrush(
+            bodyRect,
+            Color.FromArgb(255, 232, 72),
+            Color.FromArgb(245, 168, 28),
+            LinearGradientMode.Vertical);
+        using var outlinePen = new Pen(Color.FromArgb(72, 46, 18), 2f);
+
+        g.FillEllipse(bodyBrush, bodyRect);
+        g.DrawEllipse(outlinePen, bodyRect);
+
+        // Acik renkli karin bolgesi
+        using var bellyBrush = new SolidBrush(Color.FromArgb(255, 246, 178));
+        g.FillEllipse(bellyBrush, -halfW + 6, 1, bird.Width - 14, halfH - 2);
+
+        // Hareketli kanat
+        var wingRect = new RectangleF(-halfW + 5, -2 + bird.WingOffset * 0.55f, 18, 12);
+        using var wingBrush = new SolidBrush(Color.FromArgb(255, 250, 215));
+        g.FillEllipse(wingBrush, wingRect);
+        g.DrawEllipse(outlinePen, wingRect);
+
+        // Goz
+        var eyeRect = new RectangleF(4, -halfH + 4, 11, 11);
+        g.FillEllipse(Brushes.White, eyeRect);
+        g.DrawEllipse(outlinePen, eyeRect);
+        g.FillEllipse(Brushes.Black, 10, -halfH + 7, 4.5f, 4.5f);
+        g.FillEllipse(Brushes.White, 11.5f, -halfH + 8, 1.8f, 1.8f);
+
+        // Gaga
+        PointF[] beak =
+        [
+            new(halfW - 3, -2),
+            new(halfW + 10, 2),
+            new(halfW - 3, 7)
+        ];
+        using var beakBrush = new SolidBrush(Color.FromArgb(242, 92, 42));
+        g.FillPolygon(beakBrush, beak);
+        g.DrawPolygon(outlinePen, beak);
+
+        g.Restore(state);
     }
 
     private static void DrawPipes(Graphics g, IReadOnlyList<PipeObstacle> pipes)
