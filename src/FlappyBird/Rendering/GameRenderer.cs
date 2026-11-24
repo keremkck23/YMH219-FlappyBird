@@ -19,6 +19,142 @@ public class GameRenderer
         DrawPipes(g, engine.Pipes);
         DrawGround(g, engine.Ground);
         DrawBird(g, engine.Bird);
+        DrawFloatingTexts(g, engine.FloatingTexts);
+        DrawLiveScore(g, engine);
+        DrawStatusOverlay(g, engine);
+    }
+
+    private static void DrawFloatingTexts(Graphics g, IReadOnlyList<FloatingText> texts)
+    {
+        using var font = new Font("Segoe UI", 14f, FontStyle.Bold);
+        foreach (FloatingText item in texts)
+        {
+            int alpha = (int)(item.Opacity * 255);
+            using var shadowBrush = new SolidBrush(Color.FromArgb(alpha / 2, 0, 0, 0));
+            using var textBrush = new SolidBrush(Color.FromArgb(alpha, 255, 252, 160));
+            g.DrawString(item.Text, font, shadowBrush, item.X + 1.5f, item.Y + 1.5f);
+            g.DrawString(item.Text, font, textBrush, item.X, item.Y);
+        }
+    }
+
+    private static void DrawLiveScore(Graphics g, GameEngine engine)
+    {
+        if (engine.Status == GameStatus.Ready)
+        {
+            return;
+        }
+
+        string scoreText = engine.Score.ToString();
+        using var font = new Font("Segoe UI", 34f, FontStyle.Bold);
+        SizeF size = g.MeasureString(scoreText, font);
+        float x = (GameConfig.CanvasWidth - size.Width) / 2f;
+        const float y = 24f;
+
+        using var shadowBrush = new SolidBrush(Color.FromArgb(145, 0, 0, 0));
+        g.DrawString(scoreText, font, shadowBrush, x + 3, y + 3);
+        g.DrawString(scoreText, font, Brushes.White, x, y);
+    }
+
+    private static void DrawStatusOverlay(Graphics g, GameEngine engine)
+    {
+        switch (engine.Status)
+        {
+            case GameStatus.Ready:
+                DrawCenterCard(
+                    g,
+                    title: "FLAPPY BIRD",
+                    titleColor: Color.FromArgb(255, 212, 48),
+                    lines:
+                    [
+                        "Ziplamak icin SPACE / YUKARI OK / W",
+                        "Duraklatmak icin P  |  Ses icin M",
+                        $"En Yuksek Skor: {engine.HighScore}"
+                    ],
+                    footer: "Baslamak icin SPACE tusuna veya ekrana tiklayin");
+                break;
+
+            case GameStatus.Paused:
+                DrawCenterCard(
+                    g,
+                    title: "DURAKLATILDI",
+                    titleColor: Color.FromArgb(120, 210, 255),
+                    lines:
+                    [
+                        $"Mevcut Skor: {engine.Score}",
+                        $"Hiz Seviyesi: {engine.CurrentSpeed:F1}x"
+                    ],
+                    footer: "Devam etmek icin P tusuna basin");
+                break;
+
+            case GameStatus.GameOver:
+                string badge = engine.Score >= 15 ? "Altin Madalya" :
+                               engine.Score >= 8 ? "Gumus Madalya" :
+                               engine.Score >= 3 ? "Bronz Madalya" : "Yeni Deneme";
+                DrawCenterCard(
+                    g,
+                    title: "GAME OVER",
+                    titleColor: Color.FromArgb(255, 102, 82),
+                    lines:
+                    [
+                        $"Skorunuz: {engine.Score}",
+                        $"En Yuksek Skor: {engine.HighScore}",
+                        $"Basari: {badge}"
+                    ],
+                    footer: "Yeniden baslamak icin R / ENTER veya Yeni Oyun butonuna basin");
+                break;
+        }
+    }
+
+    private static void DrawCenterCard(
+        Graphics g,
+        string title,
+        Color titleColor,
+        string[] lines,
+        string footer)
+    {
+        const int cardWidth = 370;
+        const int cardHeight = 220;
+        int x = (GameConfig.CanvasWidth - cardWidth) / 2;
+        int y = (GameConfig.PlayableHeight - cardHeight) / 2 - 12;
+
+        using var overlayBrush = new SolidBrush(Color.FromArgb(75, 12, 24, 38));
+        g.FillRectangle(overlayBrush, 0, 0, GameConfig.CanvasWidth, GameConfig.PlayableHeight);
+
+        using var cardPath = CreateRoundedRectangle(new Rectangle(x, y, cardWidth, cardHeight), 16);
+        using var cardBrush = new SolidBrush(Color.FromArgb(228, 24, 36, 52));
+        using var borderPen = new Pen(Color.FromArgb(220, 255, 255, 255), 2f);
+        g.FillPath(cardBrush, cardPath);
+        g.DrawPath(borderPen, cardPath);
+
+        using var titleFont = new Font("Segoe UI", 24f, FontStyle.Bold);
+        using var bodyFont = new Font("Segoe UI", 11.5f, FontStyle.Regular);
+        using var footerFont = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+        using var titleBrush = new SolidBrush(titleColor);
+        using var format = new StringFormat { Alignment = StringAlignment.Center };
+
+        g.DrawString(title, titleFont, titleBrush, new RectangleF(x, y + 18, cardWidth, 44), format);
+
+        float lineY = y + 76;
+        foreach (string line in lines)
+        {
+            g.DrawString(line, bodyFont, Brushes.WhiteSmoke, new RectangleF(x + 12, lineY, cardWidth - 24, 24), format);
+            lineY += 26;
+        }
+
+        using var footerBrush = new SolidBrush(Color.FromArgb(255, 232, 130));
+        g.DrawString(footer, footerFont, footerBrush, new RectangleF(x + 10, y + cardHeight - 36, cardWidth - 20, 24), format);
+    }
+
+    private static GraphicsPath CreateRoundedRectangle(Rectangle rect, int radius)
+    {
+        var path = new GraphicsPath();
+        int diameter = radius * 2;
+        path.AddArc(rect.X, rect.Y, diameter, diameter, 180, 90);
+        path.AddArc(rect.Right - diameter, rect.Y, diameter, diameter, 270, 90);
+        path.AddArc(rect.Right - diameter, rect.Bottom - diameter, diameter, diameter, 0, 90);
+        path.AddArc(rect.X, rect.Bottom - diameter, diameter, diameter, 90, 90);
+        path.CloseFigure();
+        return path;
     }
 
     private static void DrawBird(Graphics g, Bird bird)
