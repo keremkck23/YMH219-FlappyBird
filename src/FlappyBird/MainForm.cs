@@ -20,6 +20,7 @@ public partial class MainForm : Form
         _renderer = new GameRenderer();
 
         InitializeComponent();
+        UpdateTopBar();
         _gameTimer.Start();
     }
 
@@ -118,11 +119,47 @@ public partial class MainForm : Form
     private void GameTimer_Tick(object? sender, EventArgs e)
     {
         _engine.Update();
+        UpdateTopBar();
         _gameCanvas.Invalidate();
     }
 
     private void GameCanvas_Paint(object? sender, PaintEventArgs e)
     {
         _renderer.Render(e.Graphics, _engine);
+    }
+
+    private void BtnNewGame_Click(object? sender, EventArgs e)
+    {
+        _engine.StartNewGame();
+        UpdateTopBar();
+        _gameCanvas.Invalidate();
+        ActiveControl = null;
+    }
+
+    private void BtnPause_Click(object? sender, EventArgs e)
+    {
+        _engine.TogglePause();
+        UpdateTopBar();
+        _gameCanvas.Invalidate();
+        ActiveControl = null;
+    }
+
+    private void BtnMute_Click(object? sender, EventArgs e)
+    {
+        _engine.ToggleMute();
+        UpdateTopBar();
+        ActiveControl = null;
+    }
+
+    private void UpdateTopBar()
+    {
+        _lblScore.Text = $"Skor: {_engine.Score}";
+        _lblHighScore.Text = $"En Yuksek: {_engine.HighScore}";
+        _lblSpeed.Text = $"Hiz: {_engine.CurrentSpeed:F1}";
+        _btnPause.Text = _engine.Status == GameStatus.Paused ? "Devam" : "Duraklat";
+        _btnMute.Text = _engine.IsMuted ? "Kapali" : "Ses";
+        _btnMute.BackColor = _engine.IsMuted
+            ? Color.FromArgb(164, 62, 62)
+            : Color.FromArgb(72, 84, 102);
     }
 }
