@@ -90,4 +90,107 @@ public class GameEngine
     {
         _soundManager.ToggleMute();
     }
+
+    /// <summary>
+    /// Her Timer tikinde (yaklasik 60 FPS) oyun dunyasini bir kare ilerletir.
+    /// </summary>
+    public void Update()
+    {
+        if (Status == GameStatus.Ready)
+        {
+            Bird.UpdateIdleHover();
+            Ground.Update(CurrentSpeed * 0.55f);
+            UpdateClouds(CurrentSpeed * 0.55f);
+            return;
+        }
+
+        if (Status != GameStatus.Playing)
+        {
+            return;
+        }
+
+        Bird.ApplyGravity();
+        Ground.Update(CurrentSpeed);
+        UpdateClouds(CurrentSpeed);
+        UpdatePipes();
+        UpdateFloatingTexts();
+
+        if (CheckCollisions())
+        {
+            TriggerGameOver();
+        }
+    }
+
+    private void UpdateClouds(float speed)
+    {
+        foreach (Cloud cloud in Clouds)
+        {
+            cloud.Update(speed);
+        }
+    }
+
+    private void UpdatePipes()
+    {
+        float rightmostX = Pipes.Max(p => p.X);
+
+        foreach (PipeObstacle pipe in Pipes)
+        {
+            pipe.Move(CurrentSpeed);
+
+            if (pipe.IsOffScreen)
+            {
+                rightmostX += GameConfig.PipeHorizontalSpacing;
+                int newGapY = GenerateRandomGapY(CurrentPipeGap);
+                pipe.Reposition(rightmostX, newGapY, CurrentPipeGap);
+            }
+        }
+    }
+
+    private void UpdateFloatingTexts()
+    {
+        for (int i = FloatingTexts.Count - 1; i >= 0; i--)
+        {
+            FloatingTexts[i].Update();
+            if (FloatingTexts[i].IsExpired)
+            {
+                FloatingTexts.RemoveAt(i);
+            }
+        }
+    }
+
+    private bool CheckCollisions()
+    {
+        RectangleF birdBounds = Bird.Bounds;
+
+        // Zemin veya ust sinir carpismasi
+        if (birdBounds.Bottom >= Ground.TopY || birdBounds.Top <= 0)
+        {
+            return true;
+        }
+
+        // Boru engelleriyle carpisma kontrolu
+        foreach (PipeObstacle pipe in Pipes)
+        {
+            if (birdBounds.IntersectsWith(pipe.TopBounds) ||
+                birdBounds.IntersectsWith(pipe.BottomBounds))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void TriggerGameOver()
+    {
+        Status = GameStatus.GameOver;
+        Bird.ClampToGround();
+        _soundManager.PlayHit();
+
+        if (Score > HighScore)
+        {
+            HighScore = Score;
+            _highScoreManager.Save(HighScore);
+        }
+    }
 }
