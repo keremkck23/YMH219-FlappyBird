@@ -269,4 +269,38 @@ public class GameEngine
             _highScoreManager.Save(HighScore);
         }
     }
+
+    /// <summary>
+    /// Dokumantasyon ekran goruntuleri icin deterministik sahne durumu hazirlar.
+    /// </summary>
+    internal void SetupPreviewScene(GameStatus status, int score, int highScore)
+    {
+        ResetToReady();
+        Status = status;
+        Score = score;
+        HighScore = Math.Max(highScore, score);
+        UpdateDifficulty();
+
+        if (status == GameStatus.Playing)
+        {
+            Pipes.Clear();
+            Pipes.Add(new PipeObstacle(195, 165, CurrentPipeGap));
+            Pipes.Add(new PipeObstacle(420, 225, CurrentPipeGap));
+            Bird.Jump();
+            Bird.ApplyGravity();
+            Bird.ApplyGravity();
+            FloatingTexts.Add(new FloatingText("+1", Bird.X + 26, Bird.Y - 14, 32));
+        }
+        else if (status == GameStatus.GameOver)
+        {
+            Pipes.Clear();
+            Pipes.Add(new PipeObstacle(135, 175, CurrentPipeGap));
+            Pipes.Add(new PipeObstacle(360, 240, CurrentPipeGap));
+            for (int i = 0; i < 18; i++)
+            {
+                Bird.ApplyGravity();
+            }
+            Bird.ClampToGround();
+        }
+    }
 }

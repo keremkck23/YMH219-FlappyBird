@@ -162,4 +162,34 @@ public partial class MainForm : Form
             ? Color.FromArgb(164, 62, 62)
             : Color.FromArgb(72, 84, 102);
     }
+
+    internal void CaptureDocumentationScreenshots(string outputDirectory)
+    {
+        Directory.CreateDirectory(outputDirectory);
+        _gameTimer.Stop();
+        CreateControl();
+        PerformLayout();
+
+        SaveSceneScreenshot(GameStatus.Ready, score: 0, highScore: 12, Path.Combine(outputDirectory, "start-screen.png"));
+        SaveSceneScreenshot(GameStatus.Playing, score: 7, highScore: 12, Path.Combine(outputDirectory, "gameplay.png"));
+        SaveSceneScreenshot(GameStatus.GameOver, score: 14, highScore: 14, Path.Combine(outputDirectory, "game-over.png"));
+    }
+
+    private void SaveSceneScreenshot(GameStatus status, int score, int highScore, string filePath)
+    {
+        _engine.SetupPreviewScene(status, score, highScore);
+        UpdateTopBar();
+
+        using var bitmap = new Bitmap(ClientSize.Width, ClientSize.Height);
+        using (var topBarBmp = new Bitmap(_topBarPanel.Width, _topBarPanel.Height))
+        {
+            _topBarPanel.DrawToBitmap(topBarBmp, new Rectangle(0, 0, _topBarPanel.Width, _topBarPanel.Height));
+            using Graphics g = Graphics.FromImage(bitmap);
+            g.DrawImage(topBarBmp, 0, 0);
+            g.TranslateTransform(0, GameConfig.TopBarHeight);
+            _renderer.Render(g, _engine);
+        }
+
+        bitmap.Save(filePath, System.Drawing.Imaging.ImageFormat.Png);
+    }
 }
