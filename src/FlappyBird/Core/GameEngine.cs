@@ -1,0 +1,93 @@
+using FlappyBird.Models;
+using FlappyBird.Services;
+
+namespace FlappyBird.Core;
+
+/// <summary>
+/// Oyunun tum durumunu, nesnelerini, hizini ve skorunu yoneten merkezi motor sinifi.
+/// </summary>
+public class GameEngine
+{
+    private readonly Random _random = new();
+    private readonly HighScoreManager _highScoreManager;
+    private readonly SoundManager _soundManager;
+
+    public Bird Bird { get; }
+    public Ground Ground { get; }
+    public List<PipeObstacle> Pipes { get; }
+    public List<Cloud> Clouds { get; }
+    public List<FloatingText> FloatingTexts { get; }
+
+    public GameStatus Status { get; private set; }
+    public int Score { get; private set; }
+    public int HighScore { get; private set; }
+    public float CurrentSpeed { get; private set; }
+    public int CurrentPipeGap { get; private set; }
+    public int PassedPipeCount { get; private set; }
+    public bool IsMuted => _soundManager.IsMuted;
+
+    public GameEngine(HighScoreManager highScoreManager, SoundManager soundManager)
+    {
+        _highScoreManager = highScoreManager;
+        _soundManager = soundManager;
+
+        Bird = new Bird();
+        Ground = new Ground();
+        Pipes = new List<PipeObstacle>();
+        Clouds = CreateInitialClouds();
+        FloatingTexts = new List<FloatingText>();
+
+        HighScore = _highScoreManager.Load();
+        ResetToReady();
+    }
+
+    public void ResetToReady()
+    {
+        Bird.Reset();
+        Ground.Reset();
+        FloatingTexts.Clear();
+
+        Score = 0;
+        PassedPipeCount = 0;
+        CurrentSpeed = GameConfig.InitialPipeSpeed;
+        CurrentPipeGap = GameConfig.InitialPipeGap;
+        Status = GameStatus.Ready;
+
+        InitializePipes();
+    }
+
+    private void InitializePipes()
+    {
+        Pipes.Clear();
+        float startX = GameConfig.CanvasWidth + 90;
+
+        for (int i = 0; i < GameConfig.PipeCount; i++)
+        {
+            int gapY = GenerateRandomGapY(CurrentPipeGap);
+            Pipes.Add(new PipeObstacle(startX + i * GameConfig.PipeHorizontalSpacing, gapY, CurrentPipeGap));
+        }
+    }
+
+    private int GenerateRandomGapY(int gapHeight)
+    {
+        int minGapY = GameConfig.MinPipeTopHeight;
+        int maxGapY = GameConfig.PlayableHeight - gapHeight - GameConfig.MinPipeTopHeight;
+        return _random.Next(minGapY, Math.Max(minGapY + 1, maxGapY));
+    }
+
+    private static List<Cloud> CreateInitialClouds()
+    {
+        return new List<Cloud>
+        {
+            new(45, 72, 1.0f, 0.22f),
+            new(210, 128, 0.8f, 0.16f),
+            new(360, 62, 1.15f, 0.26f),
+            new(460, 165, 0.72f, 0.14f)
+        };
+    }
+
+    public void ToggleMute()
+    {
+        _soundManager.ToggleMute();
+    }
+}
