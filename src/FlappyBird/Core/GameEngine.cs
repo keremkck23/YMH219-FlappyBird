@@ -137,6 +137,11 @@ public class GameEngine
         {
             pipe.Move(CurrentSpeed);
 
+            if (pipe.TryMarkPassed(Bird.X))
+            {
+                IncrementScore();
+            }
+
             if (pipe.IsOffScreen)
             {
                 rightmostX += GameConfig.PipeHorizontalSpacing;
@@ -144,6 +149,32 @@ public class GameEngine
                 pipe.Reposition(rightmostX, newGapY, CurrentPipeGap);
             }
         }
+    }
+
+    private void IncrementScore()
+    {
+        Score++;
+        PassedPipeCount++;
+        _soundManager.PlayScore();
+
+        FloatingTexts.Add(new FloatingText("+1", Bird.X + Bird.Width * 0.5f, Bird.Y - 10));
+
+        if (Score > HighScore)
+        {
+            HighScore = Score;
+        }
+
+        UpdateDifficulty();
+    }
+
+    private void UpdateDifficulty()
+    {
+        CurrentSpeed = Math.Min(
+            GameConfig.InitialPipeSpeed + Score * GameConfig.SpeedIncreasePerPoint,
+            GameConfig.MaxPipeSpeed);
+
+        int gapReduction = (Score / 5) * GameConfig.GapDecreasePerFivePoints;
+        CurrentPipeGap = Math.Max(GameConfig.InitialPipeGap - gapReduction, GameConfig.MinPipeGap);
     }
 
     private void UpdateFloatingTexts()
