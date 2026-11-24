@@ -92,6 +92,51 @@ public class GameEngine
     }
 
     /// <summary>
+    /// Klavye veya fare ile ziplama komutu geldiginde oyun durumuna gore tepki verir.
+    /// </summary>
+    public void HandleJumpInput()
+    {
+        if (Status == GameStatus.Ready)
+        {
+            Status = GameStatus.Playing;
+            Bird.Jump();
+            _soundManager.PlayJump();
+            return;
+        }
+
+        if (Status == GameStatus.Playing)
+        {
+            Bird.Jump();
+            _soundManager.PlayJump();
+        }
+    }
+
+    public void StartNewGame()
+    {
+        ResetToReady();
+    }
+
+    public void RestartAndPlay()
+    {
+        ResetToReady();
+        Status = GameStatus.Playing;
+        Bird.Jump();
+        _soundManager.PlayJump();
+    }
+
+    public void TogglePause()
+    {
+        if (Status == GameStatus.Playing)
+        {
+            Status = GameStatus.Paused;
+        }
+        else if (Status == GameStatus.Paused)
+        {
+            Status = GameStatus.Playing;
+        }
+    }
+
+    /// <summary>
     /// Her Timer tikinde (yaklasik 60 FPS) oyun dunyasini bir kare ilerletir.
     /// </summary>
     public void Update()
